@@ -30,41 +30,29 @@ const appointmentSchema = new mongoose.Schema({
 
 const Appointment = mongoose.model('POP1', appointmentSchema);
 
-app.get('/existing', async (req, res) => {
-  try {
-    const existingPatients = await Appointment.find({ patientType: 'existing' });
-    res.status(200).json(existingPatients);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.post('/existing', async (req, res) => {
-  try {
-    const newAppointmentData = req.body;
-    newAppointmentData.patientType = 'existing';
-    const newAppointment = new Appointment(newAppointmentData);
-    await newAppointment.save();
-    res.status(201).json(newAppointment);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.post('/new', async (req, res) => {
-  try {
-    const newAppointmentData = req.body;
-    newAppointmentData.patientType = 'new';
-    const newAppointment = new Appointment(newAppointmentData);
-    await newAppointment.save();
-    res.status(201).json(newAppointment);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+app.route('/patients')
+  .get(async (req, res) => {
+    try {
+      const patients = await Appointment.find();
+      console.log('Patients:', patients);
+      res.status(200).json(patients);
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  })
+  .post(async (req, res) => {
+    try {
+      const newAppointmentData = req.body;
+      const newAppointment = new Appointment(newAppointmentData);
+      await newAppointment.save();
+      console.log('New appointment added:', newAppointment);
+      res.status(201).json(newAppointment);
+    } catch (error) {
+      console.error('Error adding new appointment:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

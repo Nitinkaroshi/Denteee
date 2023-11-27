@@ -1,30 +1,46 @@
-import axios from 'axios';
-import React, { useState } from 'react';
-import './POP.css';
-import 'react-datepicker/dist/react-datepicker.css';
-import { AiOutlineClose } from 'react-icons/ai';
+import axios from "axios";
+import React, { useState, useEffect } from "react";
+import "./POP.css";
+import "react-datepicker/dist/react-datepicker.css";
+import { AiOutlineClose } from "react-icons/ai";
 
 function Viewport({ handleClose }) {
   const [events, setEvents] = useState([]);
   const [newEvent, setNewEvent] = useState({
-    title: '',
+    title: "",
     start: new Date(),
     end: new Date(),
   });
 
-  const [patientType, setPatientType] = useState('existing');
-  const [patientName, setPatientName] = useState('');
-  const [date, setDate] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState('');
-  const [selectedDoctor, setSelectedDoctor] = useState('');
-  const [selectedChair, setSelectedChair] = useState('');
-  const [selectedTreatment, setSelectedTreatment] = useState('');
-  const [notes, setNotes] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [duration, setDuration] = useState('15');
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [patientTitle, setPatientTitle] = useState('Mr.');
+  const [patientType, setPatientType] = useState("existing");
+  const [patientName, setPatientName] = useState("");
+  const [date, setDate] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedChair, setSelectedChair] = useState("");
+  const [selectedTreatment, setSelectedTreatment] = useState("");
+  const [notes, setNotes] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [duration, setDuration] = useState("15");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [patientTitle, setPatientTitle] = useState("Mr.");
+  const [existingPatients, setExistingPatients] = useState([]);
+
+  useEffect(() => {
+    const fetchExistingPatients = async () => {
+      try {
+        const response = await axios.get("http://localhost:5001/patients");
+        console.log("Existing Patients:", response.data);
+        setExistingPatients(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (patientType === "existing") {
+      fetchExistingPatients();
+    }
+  }, [patientType]);
 
   const handlePatientTypeChange = (event) => {
     setPatientType(event.target.value);
@@ -32,40 +48,37 @@ function Viewport({ handleClose }) {
 
   const handleFieldChange = (field) => (event) => {
     switch (field) {
-      case 'selectedPatient':
+      case "selectedPatient":
         setSelectedPatient(event.target.value);
         break;
-      case 'selectedDoctor':
+      case "selectedDoctor":
         setSelectedDoctor(event.target.value);
         break;
-      case 'selectedChair':
+      case "selectedChair":
         setSelectedChair(event.target.value);
         break;
-      case 'selectedTreatment':
+      case "selectedTreatment":
         setSelectedTreatment(event.target.value);
         break;
-      case 'notes':
+      case "notes":
         setNotes(event.target.value);
         break;
-      case 'startTime':
+      case "startTime":
         setStartTime(event.target.value);
         break;
-      case 'endTime':
-        setEndTime(event.target.value);
-        break;
-      case 'duration':
+      case "duration":
         setDuration(event.target.value);
         break;
-      case 'patientName':
+      case "patientName":
         setPatientName(event.target.value);
         break;
-      case 'mobileNumber':
+      case "mobileNumber":
         setMobileNumber(event.target.value);
         break;
-      case 'patientTitle':
+      case "patientTitle":
         setPatientTitle(event.target.value);
         break;
-      case 'date':
+      case "date":
         setDate(event.target.value);
         break;
       default:
@@ -80,8 +93,8 @@ function Viewport({ handleClose }) {
   const saveAppointment = async () => {
     try {
       let response;
-      if (patientType === 'existing') {
-        response = await axios.post('http://localhost:5001/existing', {
+      if (patientType === "existing") {
+        response = await axios.post("http://localhost:5001/patients", {
           patientType,
           patientName,
           date,
@@ -94,7 +107,7 @@ function Viewport({ handleClose }) {
           duration,
         });
       } else {
-        response = await axios.post('http://localhost:5001/new', {
+        response = await axios.post("http://localhost:5001/patients", {
           patientType,
           patientName,
           date,
@@ -117,7 +130,7 @@ function Viewport({ handleClose }) {
       console.error(error);
     }
   };
-return (
+  return (
     <>
       <div className="asdd">
         <div className="Salam-11">
@@ -126,41 +139,44 @@ return (
             <AiOutlineClose className="Supriya-2" onClick={handleClosePopup} />
           </h1>
           <div className="View-sai-2">
-            <label className="View-sai-2" style={{ color: 'black' }}>
+            <label className="View-sai-2" style={{ color: "black" }}>
               <input
                 type="radio"
                 value="existing"
-                checked={patientType === 'existing'}
+                checked={patientType === "existing"}
                 onChange={handlePatientTypeChange}
               />
               Existing patient
             </label>
             &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;
-            <label className="sai" style={{ color: 'black' }}>
+            <label className="sai" style={{ color: "black" }}>
               <input
                 type="radio"
                 value="new"
-                checked={patientType === 'new'}
+                checked={patientType === "new"}
                 onChange={handlePatientTypeChange}
               />
               New patient
             </label>
           </div>
 
-          {patientType === 'existing' && (
+          {patientType === "existing" && (
             <div>
               <div className="sai-up">
                 <div className="sai-up22">Patient</div>
                 <select
                   className="Saivanitha-1"
-                  onChange={(event) => setSelectedPatient(event.target.value)}
+                  onChange={(event) =>
+                    handleFieldChange("selectedPatient")(event)
+                  }
                   value={selectedPatient}
                 >
                   <option value="select patient">Select patient</option>
-                  <option value="s">sai</option>
-                  <option value="st">swathi</option>
-                  <option value="t">raju</option>
-                  <option value="t">ravi</option>
+                  {existingPatients.map((patient) => (
+                    <option key={patient._id} value={patient._id}>
+                      {patient.patientName}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -178,11 +194,21 @@ return (
               </select>
 
               <div className="sai-app-date">
-                <div className="sai-app-time" style={{ color: 'black' }}>
+                <div className="sai-app-time" style={{ color: "black" }}>
                   Date$Time
                 </div>
-                <input type="date" className="sai-app-both" onChange={(event) => setDate(event.target.value)} value={date} />
-                <input type="time" className="ans" onChange={(event) => setStartTime(event.target.value)} value={startTime} />
+                <input
+                  type="date"
+                  className="sai-app-both"
+                  onChange={(event) => setDate(event.target.value)}
+                  value={date}
+                />
+                <input
+                  type="time"
+                  className="ans"
+                  onChange={(event) => setStartTime(event.target.value)}
+                  value={startTime}
+                />
                 <select
                   className="sai-app-mins"
                   onChange={(event) => setDuration(event.target.value)}
@@ -198,7 +224,7 @@ return (
               </div>
 
               <div className="sai-chairs">
-                <div className="sai-chairs-pop" style={{ color: 'black' }}>
+                <div className="sai-chairs-pop" style={{ color: "black" }}>
                   Chairs
                 </div>
                 <select
@@ -215,7 +241,7 @@ return (
               </div>
 
               <div className="sai-Selct-13">
-                <div className="sai-Selct-pop" style={{ color: 'black' }}>
+                <div className="sai-Selct-pop" style={{ color: "black" }}>
                   Treatment
                 </div>
                 <select
@@ -252,28 +278,26 @@ return (
             </div>
           )}
 
-          {patientType === 'new' && (
+          {patientType === "new" && (
             <div>
               <div className="sai-app-direction">
                 <div className="sai-app-flex">
-                  <div className="sai-app-mobile" style={{ color: 'black' }}>
+                  <div className="sai-app-mobile" style={{ color: "black" }}>
                     Mobile no
                   </div>
-                  <div className="sai-app-pick">
-                    +91
-                  </div>
+                  <div className="sai-app-pick">+91</div>
                 </div>
                 <input
-                  type="text"
+                  type="number"
                   placeholder="mobile.no"
                   className="sai-app-num"
-                  onChange={(event) => setMobileNumber(event.target.value)}
+                  onChange={(event) => handleFieldChange("mobileNumber")(event)}
                   value={mobileNumber}
                 />
               </div>
 
               <div className="sai-app-sagar">
-                <div className="sai-app-patient" style={{ color: 'black' }}>
+                <div className="sai-app-patient" style={{ color: "black" }}>
                   Patient
                 </div>
                 <select
@@ -295,7 +319,7 @@ return (
               </div>
 
               <div className="sai-app-select">
-                <div className="sai-app-doc" style={{ color: 'black' }}>
+                <div className="sai-app-doc" style={{ color: "black" }}>
                   Doctor
                 </div>
                 <select
@@ -311,7 +335,7 @@ return (
               </div>
 
               <div className="sai-app-date-1">
-                <div className="sai-app-time-1" style={{ color: 'black' }}>
+                <div className="sai-app-time-1" style={{ color: "black" }}>
                   Date$Time
                 </div>
                 <input
@@ -341,7 +365,7 @@ return (
               </div>
 
               <div className="sai-app-chairs">
-                <div className="sai-app-sit" style={{ color: 'black' }}>
+                <div className="sai-app-sit" style={{ color: "black" }}>
                   Chairs
                 </div>
                 <select
@@ -367,9 +391,6 @@ return (
                   />
                 </div>
               </div>
-              
-
-
 
               <div className="sai-Popup-close">
                 <button onClick={saveAppointment}>Save</button>
@@ -383,6 +404,6 @@ return (
       </div>
     </>
   );
-}    
+}
 
-export default Viewport;  
+export default Viewport;
