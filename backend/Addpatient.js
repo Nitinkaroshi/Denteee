@@ -18,10 +18,10 @@ mongoose.connect('mongodb://127.0.0.1/Addpatient', {
 });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
     cb(null, 'uploads/');
   },
-  filename: (req, file, cb) => {
+  filename: (_req, file, cb) => {
     cb(null, Date.now() + '-' + file.originalname);
   },
 });
